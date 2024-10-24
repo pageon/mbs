@@ -2,7 +2,10 @@
   <div id="app">
     <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
       <div class="container-fluid">
-        <h1>MBS</h1>
+        <h1 class="navbar-brand">
+          <img src="/android-chrome-512x512.png" alt="Bootstrap" width="50px" height="50px">
+          MBS
+        </h1>
         <div class="navbar-nav py-1">
           <div class="btn-group">
             <button class="btn btn-light" @click="startOver" title="Empty bucket"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bucket" viewBox="0 0 16 16">
