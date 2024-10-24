@@ -21,6 +21,10 @@ if (process.env.NODE_ENV === 'production') {
     },
     updated () {
       console.log('New content is available; please refresh.')
+      // Notify the user to refresh the app
+      if (confirm("New version available. Refresh to update?")) {
+        window.location.reload(); // Refresh the page to load the new content
+      }
     },
     offline () {
       console.log('No internet connection found. App is running in offline mode.')
