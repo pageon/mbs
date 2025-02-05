@@ -4,7 +4,7 @@
       <div class="container-fluid">
         <h1 class="navbar-brand my-1">
           <img src="/android-chrome-512x512.png" alt="Bootstrap" width="50px" height="50px">
-          {{ $t('MBS') }}
+          {{ $t('MentalBucketSystem') }}
         </h1>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -75,6 +75,9 @@
     <div class="container-fluid">
       <div class="row">
         <div class="col">
+          <mental-bucket style="font-size: 15px" :max-level="maxPoints" :current-level="totalPoints"></mental-bucket>
+        </div>
+        <div class="col">
           <h2>Bucket</h2>
           <div class="card">
             <div class="card-header">
@@ -97,8 +100,13 @@
                   class="list-group-item d-flex justify-content-between"
                   :class="getBlockClass(block.points)"
               >
-                <input v-if="block.isEditing" v-model="block.name" @blur="block.isEditing = false" />
-                <strong v-else @click="block.isEditing = true" role="button">{{ block.name }}</strong>
+                <div>
+                  <button class="btn btn-dark me-2" @click="deleteBlock(block)"><svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="16" height="16" viewBox="0,0,256,256">
+                    <g fill="#ffffff" fill-rule="nonzero" stroke="none" stroke-width="1" stroke-linecap="butt" stroke-linejoin="miter" stroke-miterlimit="10" stroke-dasharray="" stroke-dashoffset="0" font-family="none" font-weight="none" font-size="none" text-anchor="none" style="mix-blend-mode: normal"><g transform="scale(5.12,5.12)"><path d="M21,0c-1.64453,0 -3,1.35547 -3,3v2h-7.8125c-0.125,-0.02344 -0.25,-0.02344 -0.375,0h-1.8125c-0.03125,0 -0.0625,0 -0.09375,0c-0.55078,0.02734 -0.98047,0.49609 -0.95312,1.04688c0.02734,0.55078 0.49609,0.98047 1.04688,0.95313h1.09375l3.59375,40.5c0.125,1.39844 1.31641,2.5 2.71875,2.5h19.1875c1.40234,0 2.59375,-1.10156 2.71875,-2.5l3.59375,-40.5h1.09375c0.35938,0.00391 0.69531,-0.18359 0.87891,-0.49609c0.17969,-0.3125 0.17969,-0.69531 0,-1.00781c-0.18359,-0.3125 -0.51953,-0.5 -0.87891,-0.49609h-10v-2c0,-1.64453 -1.35547,-3 -3,-3zM21,2h8c0.5625,0 1,0.4375 1,1v2h-10v-2c0,-0.5625 0.4375,-1 1,-1zM11.09375,7h27.8125l-3.59375,40.34375c-0.03125,0.34766 -0.40234,0.65625 -0.71875,0.65625h-19.1875c-0.31641,0 -0.6875,-0.30859 -0.71875,-0.65625zM18.90625,9.96875c-0.04297,0.00781 -0.08594,0.01953 -0.125,0.03125c-0.46484,0.10547 -0.79297,0.52344 -0.78125,1v33c-0.00391,0.35938 0.18359,0.69531 0.49609,0.87891c0.3125,0.17969 0.69531,0.17969 1.00781,0c0.3125,-0.18359 0.5,-0.51953 0.49609,-0.87891v-33c0.01172,-0.28906 -0.10547,-0.56641 -0.3125,-0.76172c-0.21094,-0.19922 -0.49609,-0.29687 -0.78125,-0.26953zM24.90625,9.96875c-0.04297,0.00781 -0.08594,0.01953 -0.125,0.03125c-0.46484,0.10547 -0.79297,0.52344 -0.78125,1v33c-0.00391,0.35938 0.18359,0.69531 0.49609,0.87891c0.3125,0.17969 0.69531,0.17969 1.00781,0c0.3125,-0.18359 0.5,-0.51953 0.49609,-0.87891v-33c0.01172,-0.28906 -0.10547,-0.56641 -0.3125,-0.76172c-0.21094,-0.19922 -0.49609,-0.29687 -0.78125,-0.26953zM30.90625,9.96875c-0.04297,0.00781 -0.08594,0.01953 -0.125,0.03125c-0.46484,0.10547 -0.79297,0.52344 -0.78125,1v33c-0.00391,0.35938 0.18359,0.69531 0.49609,0.87891c0.3125,0.17969 0.69531,0.17969 1.00781,0c0.3125,-0.18359 0.5,-0.51953 0.49609,-0.87891v-33c0.01172,-0.28906 -0.10547,-0.56641 -0.3125,-0.76172c-0.21094,-0.19922 -0.49609,-0.29687 -0.78125,-0.26953z"></path></g></g>
+                  </svg></button>
+                  <input v-if="block.isEditing" v-model="block.name" @blur="block.isEditing = false" />
+                  <strong v-else @click="block.isEditing = true" role="button">{{ block.name }}</strong>
+                </div>
                 <div class="btn-group btn-group-sm">
                   <button class="btn btn-success" @click="changeBlockScore(block, 1)" :disabled="block.points === 1">1</button>
                   <button class="btn btn-info" @click="changeBlockScore(block, 2)" :disabled="block.points === 2">2</button>
@@ -117,10 +125,12 @@
  <script>
  import Storage from './storage';
  import Locale from './locale.js';
+ import MentalBucket from "@/MentalBucket.vue";
 
  const DEFAULT_MAX_POINTS = 28;
 
  export default {
+   components: {MentalBucket},
    data() {
      return {
        locale: Locale.defaultLocale(),
@@ -207,6 +217,11 @@
        block.points = newScore;
      },
 
+     deleteBlock(block) {
+       const index = this.blocks.indexOf(block);
+       this.blocks.splice(index, 1);
+     },
+
      printBucket() {
        window.print();
      },
@@ -218,7 +233,7 @@
      },
 
      loadBucket(bucket) {
-       this.blocks = bucket.blocks;
+       this.blocks = JSON.parse(JSON.stringify(bucket.blocks));
      },
 
      clearHistory() {
