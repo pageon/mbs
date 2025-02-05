@@ -17,6 +17,7 @@ const I18N = createI18n({
       ClearHistory: 'Clear history',
       ClearHistoryConfirm: 'Are you sure you want to clear all history?',
       StartOverConfirm: 'Are you sure you want to start over? This will clear the current bucket but not saved history.',
+      DeleteBlockConfirm: 'Are you sure you want to delete this block?',
       MaxPoints: 'Max points',
       Buffer: 'Buffer',
       points: 'points',
@@ -25,6 +26,11 @@ const I18N = createI18n({
       Add: 'Add',
       Bucket: 'Bucket',
       Overflow: 'Overflow',
+      nl: 'Nederlands',
+      en: 'English',
+      BucketSize: 'Bucket size',
+      ShowIndicator: 'Show bucket content indicator',
+      Language: 'Language',
     },
     nl: {
       Settings: 'Instellingen',
@@ -37,6 +43,7 @@ const I18N = createI18n({
       ClearHistory: 'Geschiedenis wissen',
       ClearHistoryConfirm: 'Ben je zeker dat je alle geschiedenis wilt wissen?',
       StartOverConfirm: 'Ben je zeker dat je opnieuw wilt beginnen? Dit zal de huidige emmer wissen maar niet de opgeslagen geschiedenis.',
+      DeleteBlockConfirm: 'Ben je zeker dat je deze block wilt verwijderen?',
       MaxPoints: 'Maximum punten',
       Buffer: 'Buffer',
       points: 'punten',
@@ -45,6 +52,11 @@ const I18N = createI18n({
       Add: 'Toevoegen',
       Bucket: 'Emmer',
       Overflow: 'Overloop',
+      nl: 'Nederlands',
+      en: 'English',
+      BucketSize: 'Emmergrootte',
+      ShowIndicator: 'Toon indicator inhoud emmer',
+      Language: 'Taal',
     }
   }
 })

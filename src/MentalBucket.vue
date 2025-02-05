@@ -1,5 +1,12 @@
 <script>
 
+const COLOURS = [
+  'var(--bs-success)', // 1
+  'var(--bs-info)',    // 2
+  'var(--bs-warning)', // 3
+  'var(--bs-danger)'   // 4
+]
+
 export default {
   data() {
     return {
@@ -20,7 +27,11 @@ export default {
     index: {
       type: Number,
       default: 0
-    }
+    },
+    showIndicator: {
+      type: Boolean,
+      default: true
+    },
   },
 
   watch: {
@@ -28,16 +39,56 @@ export default {
       this.changeLevel(newLevel);
     },
 
-    blocks (newBlocks) {
-      console.debug(newBlocks);
+    maxLevel () {
+      this.changeLevel(this.currentLevel);
+    },
+
+    blocks (data) {
+      this.updateIndicator(data);
+    },
+
+    showIndicator () {
+      this.updateIndicator(this.blocks);
     }
   },
   mounted() {
     this.changeLevel(this.currentLevel);
+    this.updateIndicator(this.blocks);
   },
 
   methods: {
+    updateIndicator(data) {
+      const indicator = document.querySelector('.bucket-' + this.index +' .indicator');
+
+      if (!this.showIndicator) {
+        indicator.style.width = 0;
+        return;
+      }
+
+      const totalPoints = data.points;
+      let gradientParts = [];
+      let accumulatedPercentage = 0;
+
+      // Iterate over keys 1 to 4 to generate gradient segments
+      for (let i = 1; i <= 4; i++) {
+        const value = data[i];
+        if (value > 0) {
+          const percentage = (value / totalPoints) * 100;
+          gradientParts.push(`${COLOURS[i - 1]} ${accumulatedPercentage}% ${accumulatedPercentage + percentage}%`);
+          accumulatedPercentage += percentage;
+        }
+      }
+      indicator.style.width = 0;
+      // Apply the CSS background
+      setTimeout(() => indicator.style.background = `linear-gradient(to bottom, ${gradientParts.join(", ")})`, 1000);
+      setTimeout(() => indicator.style.width = '', 1000);
+    },
+
     changeLevel(newLevel) {
+      if (newLevel === this.level) {
+        return;
+      }
+
       if (newLevel > this.maxLevel) {
         newLevel = this.maxLevel;
       } else if (newLevel < 0) {
@@ -98,7 +149,9 @@ export default {
     </div>
     <div class="bucket">
       <div class="bucket-handle"></div>
-      <div :class="currentLevel > 0 ? '' : 'empty'" class="water"></div>
+      <div :class="currentLevel > 0 ? '' : 'empty'" class="water">
+        <div class="indicator"></div>
+      </div>
       <div class="bucket-valve">
         <div class="valve-water-flow"></div>
       </div>
@@ -106,9 +159,7 @@ export default {
   </div>
 </template>
 
-
 <style>
-
 .animation-container {
   position: relative;
   width: 20em;
@@ -260,5 +311,12 @@ export default {
   top: 1.65em;
   left: 50%;
   transform: translateX(-50%);
+}
+
+.indicator {
+  width: 10%;
+  height: 100%;
+  display: block;
+  transition: width 1s ease;
 }
 </style>

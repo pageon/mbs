@@ -69,6 +69,22 @@
           <label for="maxPoints" class="form-label">{{ $t('MaxPoints') }}</label>
           <input v-model.number="maxPoints" type="number" class="form-control" min="1" placeholder="Max Points" />
         </div>
+        <div class="mb-3">
+          <label for="bucketSize" class="form-label">{{ $t('BucketSize') }}</label>
+          <input type="range" min="0.7" max="2" step="0.1" v-model.number="bucketSize" class="form-control" />
+        </div>
+        <div class="mb-3">
+          <div class="form-check form-switch">
+            <input type="checkbox" v-model="showIndicator" role="switch" class="form-check-input" />
+            <label class="form-check-label" for="showIndicator">{{ $t('ShowIndicator') }}</label>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label for="locale" class="form-label">{{ $t('Language') }}</label>
+          <select class="form-select" v-model="locale">
+            <option v-for="locale in $i18n.availableLocales" :key="`locale-${locale}`" :value="locale">{{ $t(locale) }}</option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -77,7 +93,7 @@
         <div class="col-12 col-md-6 col-xxl-5">
           <div class="row">
             <template v-for="(bucket, index) in buckets" :key="'bucket-' + index">
-              <mental-bucket class="col mx-1" v-if="bucket.points > 0" style="font-size: 11px" :max-level="maxPoints" :current-level="bucket.points" :index="index" :blocks="bucket"></mental-bucket>
+              <mental-bucket class="col mx-1" v-if="bucket.points > 0 || buckets.length === 1" :style="'font-size: ' + bucketSize * 10 + 'px'" :max-level="maxPoints" :current-level="bucket.points" :index="index" :blocks="bucket" :show-indicator="showIndicator"></mental-bucket>
             </template>
           </div>
         </div>
@@ -147,12 +163,22 @@
        newBlock: { name: '', points: 1 },
        blocks: [],
        maxPoints: Storage.get('maxPoints', DEFAULT_MAX_POINTS),
+       bucketSize: Storage.get('bucketSize', 1.1),
+       showIndicator: Storage.get('showIndicator', 1) === 1,
        storedBuckets: Storage.get('buckets', []),
      };
    },
    watch: {
      maxPoints(newValue) {
        Storage.set('maxPoints', newValue);
+     },
+
+     bucketSize(newValue) {
+       Storage.set('bucketSize', newValue);
+     },
+
+     showIndicator(newValue) {
+       Storage.set('showIndicator', newValue ? 1 : 0);
      },
 
      storedBuckets(newValue) {
@@ -223,6 +249,7 @@
          buckets.push(bucket);
          counter = newCounter - this.maxPoints;
          bucket[points.toString()] += counter;
+         bucket['points'] = counter;
        }
 
        return buckets;
@@ -265,8 +292,10 @@
      },
 
      deleteBlock(block) {
-       const index = this.blocks.indexOf(block);
-       this.blocks.splice(index, 1);
+       if (confirm(Locale.get('DeleteBlockConfirm'))) {
+         const index = this.blocks.indexOf(block);
+         this.blocks.splice(index, 1);
+       }
      },
 
      printBucket() {
