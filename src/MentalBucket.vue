@@ -12,57 +12,73 @@ export default {
       type: Number,
       default: 0
     },
+    blocks: {},
     maxLevel: {
+      type: Number,
+      default: 0
+    },
+    index: {
       type: Number,
       default: 0
     }
   },
 
   watch: {
-    currentLevel (progress) {
-      if (progress > this.maxLevel) {
-        progress = this.maxLevel;
-      } else if (progress < 0) {
-        progress = 0;
+    currentLevel (newLevel) {
+      this.changeLevel(newLevel);
+    },
+
+    blocks (newBlocks) {
+      console.debug(newBlocks);
+    }
+  },
+  mounted() {
+    this.changeLevel(this.currentLevel);
+  },
+
+  methods: {
+    changeLevel(newLevel) {
+      if (newLevel > this.maxLevel) {
+        newLevel = this.maxLevel;
+      } else if (newLevel < 0) {
+        newLevel = 0;
       }
-      const water = document.querySelector('.water');
-      const tapWaterFlow = document.querySelector('.tap-water-flow');
-      const valveWaterFlow = document.querySelector('.valve-water-flow');
+      const water = document.querySelector('.bucket-' + this.index +' .water');
+      const tapWaterFlow = document.querySelector('.bucket-' + this.index +' .tap-water-flow');
+      const valveWaterFlow = document.querySelector('.bucket-' + this.index +' .valve-water-flow');
 
       this.clearAllTimeouts();
 
-      // Handle water progress animations
+      // Handle water animations
       tapWaterFlow.removeAttribute('style');
       valveWaterFlow.removeAttribute('style');
       let originalLevel = this.level;
 
-      if (progress > this.level) {
+      if (newLevel > this.level) {
         valveWaterFlow.style.height = 0;
 
         this.addTimeout(setTimeout(() => tapWaterFlow.style.transition = 'height 1s ease, top 1s ease', 100));
         this.addTimeout(setTimeout(() => tapWaterFlow.style.height = `${645 - (100 / this.maxLevel * originalLevel * 4.5)}%`, 100));
-        this.addTimeout(setTimeout(() => tapWaterFlow.style.height = `${645 - (100 / this.maxLevel * progress * 4.5)}%`, 1000));
+        this.addTimeout(setTimeout(() => tapWaterFlow.style.height = `${645 - (100 / this.maxLevel * newLevel * 4.5)}%`, 1000));
         this.addTimeout(setTimeout(() => water.style.opacity = 100, 1000));
-        this.addTimeout(setTimeout(() => tapWaterFlow.style.top = `${745 - (100 / this.maxLevel * progress * 4.5)}%`, 1800));
+        this.addTimeout(setTimeout(() => tapWaterFlow.style.top = `${745 - (100 / this.maxLevel * newLevel * 4.5)}%`, 1800));
         this.addTimeout(setTimeout(() => tapWaterFlow.style.height = '0', 1800));
-        this.addTimeout(setTimeout(() => water.style.height = `${95 / this.maxLevel * progress}%`, 1000));
+        this.addTimeout(setTimeout(() => water.style.height = `${95 / this.maxLevel * newLevel}%`, 1000));
       } else {
         tapWaterFlow.style.height = '0';
         this.addTimeout(setTimeout(() => valveWaterFlow.style.transition = 'height 1s ease, top 1s ease', 100));
         this.addTimeout(setTimeout(() => valveWaterFlow.style.height = '5em', 100));
-        this.addTimeout(setTimeout(() => water.style.height = `${95 / this.maxLevel * progress}%`, 100));
+        this.addTimeout(setTimeout(() => water.style.height = `${95 / this.maxLevel * newLevel}%`, 100));
         this.addTimeout(setTimeout(() => valveWaterFlow.style.height = '0', 1100));
         this.addTimeout(setTimeout(() => valveWaterFlow.style.top = '6.65em', 1100));
-        if (progress === 0) {
+        if (newLevel === 0) {
           this.addTimeout(setTimeout(() => water.style.opacity = 0, 1100));
         }
       }
 
-      this.level = progress;
-    }
-  },
+      this.level = newLevel;
+    },
 
-  methods: {
     clearAllTimeouts() {
       this.timeouts.forEach(timeout => clearTimeout(timeout));
       this.timeouts = [];
@@ -76,7 +92,7 @@ export default {
 </script>
 
 <template>
-  <div class="animation-container">
+  <div :class="'animation-container bucket-' + index">
     <div class="tap">
       <div class="tap-water-flow"></div>
     </div>
@@ -99,6 +115,9 @@ export default {
   height: 35em;
   box-sizing: border-box;
   font-size: 10px;
+  min-width: 16em;
+  max-width: 16em !important;
+  margin-bottom: 6em;
 }
 
 .animation-container * {

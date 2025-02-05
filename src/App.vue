@@ -73,24 +73,34 @@
     </div>
 
     <div class="container-fluid">
-      <div class="row">
-        <div class="col">
-          <mental-bucket style="font-size: 15px" :max-level="maxPoints" :current-level="totalPoints"></mental-bucket>
+      <div class="row flex-md-row">
+        <div class="col-12 col-md-6 col-xxl-5">
+          <div class="row">
+            <template v-for="(bucket, index) in buckets" :key="'bucket-' + index">
+              <mental-bucket class="col mx-1" v-if="bucket.points > 0" style="font-size: 11px" :max-level="maxPoints" :current-level="bucket.points" :index="index" :blocks="bucket"></mental-bucket>
+            </template>
+          </div>
         </div>
-        <div class="col">
-          <h2>Bucket</h2>
+        <div class="col-12 col-md-6 col-xxl-7 mt-3">
           <div class="card">
             <div class="card-header">
-              <strong>{{ $t('Buffer') }}:</strong> <span class="badge" :class="bufferBackgroundColor">{{ remainingPoints }}</span> {{ $t('points') }}
+              <div v-if="remainingPoints > 0"><strong>{{ $t('Buffer') }}:</strong> <span class="badge" :class="bufferBackgroundColor">{{ remainingPoints }}</span> {{ $t('points') }}</div>
+              <div v-if="remainingPoints <= 0"><strong>{{ $t('Overflow') }}:</strong> <span class="badge" :class="bufferBackgroundColor">{{ totalPoints - maxPoints }}</span> {{ $t('points') }}</div>
             </div>
             <div class="card-body">
-              <form class="d-flex" @submit.prevent="addBlock">
-                <input class="form-control me-2" v-model="newBlock.name" :placeholder="$t('BlockName')" required />
-                <input class="form-control me-2" style="width: initial" size="1" v-model.number="newBlock.points" type="number" min="1" max="4" placeholder="Points (1-4)" required />
-                <button class="btn btn-dark" type="submit" :title="$t('AddBlock')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
-                  <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
-                  <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                </svg>&nbsp;{{ $t('Add') }}</button>
+              <form class="row" @submit.prevent="addBlock">
+                <div class="my-1 col-9 col-xl-10 col-xxl-7">
+                  <input class="form-control  col-12" v-model="newBlock.name" :placeholder="$t('BlockName')" required />
+                </div>
+                <div class="my-1 col-2 col-xl-2 col-xxl-2">
+                  <input class="form-control  col-12" style="width: initial" size="1" v-model.number="newBlock.points" type="number" min="1" max="4" placeholder="Points (1-4)" required />
+                </div>
+                <div class="my-1 col-12 col-xxl-3">
+                  <button class="btn btn-dark col-12" type="submit" :title="$t('AddBlock')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
+                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                  </svg>&nbsp;{{ $t('Add') }}</button>
+                </div>
               </form>
             </div>
             <div class="list-group bg-primary-subtle">
@@ -184,9 +194,46 @@
        // Sort blocks with lowest points at the top and highest at the bottom
        return [...this.blocks].sort((a, b) => a.points - b.points);
      },
+
+     reverseOrderedBlocks() {
+       // Sort blocks with lowest points at the bottom and highest at the top
+       return [...this.blocks].sort((a, b) => b.points - a.points);
+     },
+
+     buckets() {
+       let buckets = [];
+       let bucket = this.getBucketObject();
+       buckets.push(bucket);
+       let counter = 0;
+       for (let block of this.reverseOrderedBlocks) {
+         let points = block.points;
+         let newCounter = counter + points;
+
+         if (newCounter < this.maxPoints) {
+           bucket[points.toString()] += block.points;
+           counter = newCounter;
+           bucket['points'] = counter;
+
+           continue;
+         }
+         bucket[points.toString()] += (this.maxPoints - counter);
+         bucket['points'] = this.maxPoints;
+
+         bucket = this.getBucketObject();
+         buckets.push(bucket);
+         counter = newCounter - this.maxPoints;
+         bucket[points.toString()] += counter;
+       }
+
+       return buckets;
+     },
    },
 
    methods: {
+     getBucketObject() {
+       return {'points': 0, '1': 0, '2': 0, '3': 0, '4': 0};
+     },
+
      startOver() {
        if (confirm(Locale.get('StartOverConfirm'))) {
          // Clear current blocks but keep the saved history

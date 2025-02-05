@@ -24,6 +24,7 @@ const I18N = createI18n({
       AddBlock: 'Add block',
       Add: 'Add',
       Bucket: 'Bucket',
+      Overflow: 'Overflow',
     },
     nl: {
       Settings: 'Instellingen',
@@ -43,6 +44,7 @@ const I18N = createI18n({
       AddBlock: 'Blok toevoegen',
       Add: 'Toevoegen',
       Bucket: 'Emmer',
+      Overflow: 'Overloop',
     }
   }
 })
