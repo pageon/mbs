@@ -86,6 +86,12 @@
           </select>
         </div>
       </div>
+      <div class="offcanvas-footer">
+        <div class="btn-group w-100" role="group" aria-label="History control buttons">
+          <button class="btn btn-success rounded-0" @click="exportConfig">{{ $t('ExportConfig') }}</button>
+          <button class="btn btn-warning rounded-0" @click="importConfig">{{ $t('ImportConfig') }}</button>
+        </div>
+      </div>
     </div>
 
     <div class="container-fluid">
@@ -318,6 +324,18 @@
          Storage.remove('buckets');
          Storage.remove('maxPoints');
          this.maxPoints = DEFAULT_MAX_POINTS;
+       }
+     },
+
+     exportConfig() {
+       navigator.clipboard.writeText(Storage.export());
+       alert(Locale.get('ConfigCopied'));
+     },
+
+     importConfig() {
+       if (confirm(Locale.get('ImportConfigConfirm'))) {
+         Storage.import(prompt(Locale.get('ImportConfigPrompt')));
+         window.location.reload();
        }
      },
    },

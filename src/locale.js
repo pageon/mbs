@@ -31,6 +31,10 @@ const I18N = createI18n({
       BucketSize: 'Bucket size',
       ShowIndicator: 'Show bucket content indicator',
       Language: 'Language',
+      ExportConfig: 'Export settings',
+      ConfigCopied: 'Settings copied to clipboard',
+      ImportConfigConfirm: 'Are you sure you want to overwrite the current settings?',
+      ImportConfigPrompt: 'Paste settings here',
     },
     nl: {
       Settings: 'Instellingen',
@@ -57,6 +61,10 @@ const I18N = createI18n({
       BucketSize: 'Emmergrootte',
       ShowIndicator: 'Toon indicator inhoud emmer',
       Language: 'Taal',
+      ExportConfig: 'Instellingen exporteren',
+      ConfigCopied: 'Instellingen gekopieerd naar klembord',
+      ImportConfigConfirm: 'Ben je zeker dat je de huidige instellingen wilt overschrijven?',
+      ImportConfigPrompt: 'Plak hier de instellingen',
     }
   }
 })
