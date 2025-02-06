@@ -15,9 +15,11 @@ export default class Storage {
     let data = {}
     for (let i = 0; i < localStorage.length; i++) {
       let key = localStorage.key(i)
+      if (key === 'qodana-storage.v1.') continue
       data[key] = localStorage.getItem(key)
     }
 
+    console.debug(data, JSON.parse(atob(btoa(JSON.stringify(data)))))
     return btoa(JSON.stringify(data))
   }
 
@@ -25,7 +27,7 @@ export default class Storage {
     data = JSON.parse(atob(data));
 
     for (let key in data) {
-      this.set(key, data[key]);
+      localStorage.setItem(key, data[key]);
     }
   }
 }
