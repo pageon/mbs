@@ -1,4 +1,4 @@
-package be.pageon.mbs
+package be.pageon.mentalbucketsystem
 
 import org.junit.Test
 

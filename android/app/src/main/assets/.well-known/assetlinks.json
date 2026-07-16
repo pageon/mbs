@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "be.pageon.mentalbucketsystem",
+      "sha256_cert_fingerprints": [
+        "EF:74:3A:AA:8A:F6:EF:70:37:1F:AC:AF:4B:11:32:85:3A:43:61:FE:31:3B:77:75:AD:28:34:28:FA:05:24:D9"
+      ]
+    }
+  }
+]

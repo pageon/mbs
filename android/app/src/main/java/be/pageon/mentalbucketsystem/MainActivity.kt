@@ -1,4 +1,4 @@
-package be.pageon.mbs
+package be.pageon.mentalbucketsystem
 
 import android.annotation.SuppressLint
 import android.os.Bundle
