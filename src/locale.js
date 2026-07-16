@@ -25,8 +25,8 @@ const I18N = createI18n({
       Add: 'Add',
       Bucket: 'Bucket',
       Overflow: 'Overflow',
-      nl: 'Nederlands',
-      en: 'English',
+      nl: 'Dutch / Nederlands',
+      en: 'English / Engels',
       BucketSize: 'Bucket size',
       ChangeBucketSize: 'Change bucket size',
       ShowIndicator: 'Show bucket content indicator',
@@ -37,6 +37,9 @@ const I18N = createI18n({
       Confirm: 'Confirm',
       Cancel: 'Cancel',
       Copy: 'Copy',
+      WelcomeTitle: 'Welcome',
+      OnboardingExplanation: 'Add anything that\'s on your mind as a block worth between 1 and 4 points - 1 for something small, 4 for something that weighs heavily. Choose how many points your bucket can hold before it\'s full, then start adding what\'s on your mind.',
+      GetStarted: 'Get started',
     },
     nl: {
       Settings: 'Instellingen',
@@ -57,8 +60,8 @@ const I18N = createI18n({
       Add: 'Toevoegen',
       Bucket: 'Emmer',
       Overflow: 'Overloop',
-      nl: 'Nederlands',
-      en: 'English',
+      nl: 'Nederlands / Dutch',
+      en: 'Engels / English',
       BucketSize: 'Emmergrootte',
       ChangeBucketSize: 'Emmergrootte aanpassen',
       ShowIndicator: 'Toon indicator inhoud emmer',
@@ -69,6 +72,9 @@ const I18N = createI18n({
       Confirm: 'Bevestigen',
       Cancel: 'Annuleren',
       Copy: 'Kopiëren',
+      WelcomeTitle: 'Welkom',
+      OnboardingExplanation: 'Voeg alles toe wat je bezighoudt als een blok van 1 tot 4 punten - 1 voor iets kleins, 4 voor iets dat zwaar weegt. Kies hoeveel punten je emmer kan bevatten voordat hij vol is, en begin dan met toevoegen wat je bezighoudt.',
+      GetStarted: 'Aan de slag',
     }
   }
 })

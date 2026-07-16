@@ -88,6 +88,39 @@
       </div>
     </div>
 
+    <div class="modal fade" ref="onboardingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ $t('WelcomeTitle') }}</h5>
+          </div>
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label d-block">{{ $t('Language') }}</label>
+              <div class="btn-group w-100" role="group" :aria-label="$t('Language')">
+                <button
+                    v-for="loc in $i18n.availableLocales"
+                    :key="`onboarding-locale-${loc}`"
+                    type="button"
+                    class="btn"
+                    :class="locale === loc ? 'btn-primary' : 'btn-outline-primary'"
+                    @click="locale = loc"
+                >{{ $t(loc) }}</button>
+              </div>
+            </div>
+            <p>{{ $t('OnboardingExplanation') }}</p>
+            <div class="mb-3">
+              <label for="onboardingMaxPoints" class="form-label">{{ $t('MaxPoints') }}</label>
+              <input id="onboardingMaxPoints" v-model.number="maxPoints" type="number" class="form-control" min="1" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary w-100" @click="completeOnboarding">{{ $t('GetStarted') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="modal fade" ref="confirmModal" tabindex="-1" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -208,7 +241,7 @@
  import MentalBucket from "@/MentalBucket.vue";
  import { Modal, Collapse } from 'bootstrap';
 
- const DEFAULT_MAX_POINTS = 28;
+ const DEFAULT_MAX_POINTS = 16;
 
  export default {
    components: {MentalBucket},
@@ -227,6 +260,11 @@
        configText: '',
        configCopied: false,
      };
+   },
+   mounted() {
+     if (!Storage.get('onboarded', false)) {
+       Modal.getOrCreateInstance(this.$refs.onboardingModal).show();
+     }
    },
    watch: {
      blocks: {
@@ -326,6 +364,11 @@
    methods: {
      getBucketObject() {
        return {'points': 0, '1': 0, '2': 0, '3': 0, '4': 0};
+     },
+
+     completeOnboarding() {
+       Storage.set('onboarded', true);
+       Modal.getOrCreateInstance(this.$refs.onboardingModal).hide();
      },
 
      async startOver() {
