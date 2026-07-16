@@ -2,8 +2,8 @@
   <div id="app">
     <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
       <div class="container-fluid">
-        <h1 class="navbar-brand my-1">
-          <img src="/android-chrome-512x512.png" alt="Bootstrap" width="50px" height="50px">
+        <h1 class="navbar-brand my-1 mx-1 p-0">
+          <img src="/android-chrome-512x512.png" alt="Bootstrap" width="40px" height="40px">
           {{ $t('MentalBucketSystem') }}
         </h1>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
