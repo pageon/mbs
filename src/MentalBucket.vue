@@ -36,6 +36,12 @@ export default {
     },
   },
 
+  computed: {
+    isOverflow() {
+      return this.index > 0;
+    }
+  },
+
   watch: {
     currentLevel (newLevel) {
       this.changeLevel(newLevel);
@@ -203,6 +209,7 @@ export default {
       <div class="bucket-valve">
         <div class="valve-water-flow"></div>
       </div>
+      <div class="overflow-label" v-if="isOverflow">{{ $t('Overflow') }}</div>
     </div>
   </div>
 </template>
@@ -366,6 +373,24 @@ export default {
   height: 100%;
   display: block;
   transition: width 1s ease;
+}
+
+/* Marks a bucket as an overflow bucket, most important when it's the one
+   shown fullscreen (mobile) since then it's the only bucket on screen. */
+.overflow-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #fff;
+  font-size: 1.6em;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow: 0 0 0.3em rgba(0, 0, 0, 0.7), 0 0 0.6em rgba(0, 0, 0, 0.7);
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 6;
 }
 
 /* Fullscreen visualisation while water is flowing, mobile only (stacked layout, <= 767px) */
