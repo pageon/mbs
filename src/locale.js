@@ -8,7 +8,6 @@ const I18N = createI18n({
   messages: {
     en: {
       Settings: 'Settings',
-      Print: 'Print',
       EmptyBucket: 'Empty bucket',
       SaveBucket: 'Save bucket',
       MentalBucketSystem: 'Stress Bucket',
@@ -29,16 +28,18 @@ const I18N = createI18n({
       nl: 'Nederlands',
       en: 'English',
       BucketSize: 'Bucket size',
+      ChangeBucketSize: 'Change bucket size',
       ShowIndicator: 'Show bucket content indicator',
       Language: 'Language',
       ExportConfig: 'Export settings',
       ConfigCopied: 'Settings copied to clipboard',
-      ImportConfigConfirm: 'Are you sure you want to overwrite the current settings?',
       ImportConfigPrompt: 'Paste settings here',
+      Confirm: 'Confirm',
+      Cancel: 'Cancel',
+      Copy: 'Copy',
     },
     nl: {
       Settings: 'Instellingen',
-      Print: 'Printen',
       EmptyBucket: 'Emmer leeg maken',
       SaveBucket: 'Emmer opslaan',
       MentalBucketSystem: 'Stressemmer',
@@ -59,12 +60,15 @@ const I18N = createI18n({
       nl: 'Nederlands',
       en: 'English',
       BucketSize: 'Emmergrootte',
+      ChangeBucketSize: 'Emmergrootte aanpassen',
       ShowIndicator: 'Toon indicator inhoud emmer',
       Language: 'Taal',
       ExportConfig: 'Instellingen exporteren',
       ConfigCopied: 'Instellingen gekopieerd naar klembord',
-      ImportConfigConfirm: 'Ben je zeker dat je de huidige instellingen wilt overschrijven?',
       ImportConfigPrompt: 'Plak hier de instellingen',
+      Confirm: 'Bevestigen',
+      Cancel: 'Annuleren',
+      Copy: 'Kopiëren',
     }
   }
 })

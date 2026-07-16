@@ -17,12 +17,6 @@
               </svg>&nbsp; {{ $t('EmptyBucket') }}</button>
             </li>
             <li class="nav-item">
-              <button class="btn" @click="printBucket" :title="$t('Print')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-printer-fill" viewBox="0 0 16 16">
-                <path d="M5 1a2 2 0 0 0-2 2v1h10V3a2 2 0 0 0-2-2zm6 8H5a1 1 0 0 0-1 1v3a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-3a1 1 0 0 0-1-1"/>
-                <path d="M0 7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2h-1v-2a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v2H2a2 2 0 0 1-2-2zm2.5 1a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1"/>
-              </svg>&nbsp; {{ $t('Print') }}</button>
-            </li>
-            <li class="nav-item">
               <button class="btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasHistory" aria-controls="offcanvasHistory" :title="$t('History')">
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-clock-history" viewBox="0 0 16 16">
                   <path d="M8.515 1.019A7 7 0 0 0 8 1V0a8 8 0 0 1 .589.022zm2.004.45a7 7 0 0 0-.985-.299l.219-.976q.576.129 1.126.342zm1.37.71a7 7 0 0 0-.439-.27l.493-.87a8 8 0 0 1 .979.654l-.615.789a7 7 0 0 0-.418-.302zm1.834 1.79a7 7 0 0 0-.653-.796l.724-.69q.406.429.747.91zm.744 1.352a7 7 0 0 0-.214-.468l.893-.45a8 8 0 0 1 .45 1.088l-.95.313a7 7 0 0 0-.179-.483m.53 2.507a7 7 0 0 0-.1-1.025l.985-.17q.1.58.116 1.17zm-.131 1.538q.05-.254.081-.51l.993.123a8 8 0 0 1-.23 1.155l-.964-.267q.069-.247.12-.501m-.952 2.379q.276-.436.486-.908l.914.405q-.24.54-.555 1.038zm-.964 1.205q.183-.183.35-.378l.758.653a8 8 0 0 1-.401.432z"></path>
@@ -49,7 +43,7 @@
       </div>
       <div class="offcanvas-body">
         <div class="btn-group-vertical overflow-y-scroll w-100 h-80p" role="group" aria-label="Saved buckets">
-          <button @click="loadBucket(bucket)" v-for="(bucket, index) in [...storedBuckets].reverse()" :key="index" type="button" class="btn btn-outline-info w-100">{{ bucket.date }}</button>
+          <button @click="loadBucket(bucket)" data-bs-dismiss="offcanvas" v-for="(bucket, index) in [...storedBuckets].reverse()" :key="index" type="button" class="btn btn-outline-info w-100">{{ bucket.date }}</button>
         </div>
       </div>
       <div class="offcanvas-footer">
@@ -70,8 +64,8 @@
           <input v-model.number="maxPoints" type="number" class="form-control" min="1" placeholder="Max Points" />
         </div>
         <div class="mb-3">
-          <label for="bucketSize" class="form-label">{{ $t('BucketSize') }}</label>
-          <input type="range" min="0.7" max="2" step="0.1" v-model.number="bucketSize" class="form-control" />
+          <label class="form-label d-block">{{ $t('BucketSize') }}</label>
+          <button type="button" class="btn btn-outline-primary w-100" @click="openBucketSizeModal">{{ $t('ChangeBucketSize') }}</button>
         </div>
         <div class="mb-3">
           <div class="form-check form-switch">
@@ -94,12 +88,67 @@
       </div>
     </div>
 
+    <div class="modal fade" ref="confirmModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-body">
+            {{ confirmMessage }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" @click="resolveConfirm(false)">{{ $t('Cancel') }}</button>
+            <button type="button" class="btn btn-danger" @click="resolveConfirm(true)">{{ $t('Confirm') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" ref="configModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ configModalMode === 'import' ? $t('ImportConfig') : $t('ExportConfig') }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p v-if="configModalMode === 'import'">{{ $t('ImportConfigPrompt') }}</p>
+            <textarea class="form-control" rows="6" v-model="configText" :readonly="configModalMode === 'export'"></textarea>
+            <div v-if="configCopied" class="text-success mt-2">{{ $t('ConfigCopied') }}</div>
+          </div>
+          <div class="modal-footer">
+            <button v-if="configModalMode === 'export'" type="button" class="btn btn-success" @click="copyConfigText">{{ $t('Copy') }}</button>
+            <button v-if="configModalMode === 'import'" type="button" class="btn btn-warning" :disabled="!configText" @click="applyImportConfig">{{ $t('ImportConfig') }}</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{{ $t('Cancel') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal fade" ref="bucketSizeModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">{{ $t('BucketSize') }}</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body text-center">
+            <div class="bucket-size-preview">
+              <mental-bucket :style="'font-size: ' + bucketSize * 10 + 'px'" :max-level="maxPoints" :current-level="buckets[0].points" :index="9999" :blocks="buckets[0]" :show-indicator="showIndicator"></mental-bucket>
+            </div>
+            <input type="range" min="0.7" max="2" step="0.1" v-model.number="bucketSize" class="form-range mt-3" />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">{{ $t('Confirm') }}</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <div class="container-fluid">
       <div class="row flex-md-row">
         <div class="col-12 col-md-6 col-xxl-5 order-2 order-md-1">
           <div class="row justify-content-center">
             <template v-for="(bucket, index) in buckets" :key="'bucket-' + index">
-              <mental-bucket class="col mx-1" v-if="bucket.points > 0 || buckets.length === 1" :style="'font-size: ' + bucketSize * 10 + 'px'" :max-level="maxPoints" :current-level="bucket.points" :index="index" :blocks="bucket" :show-indicator="showIndicator"></mental-bucket>
+              <mental-bucket class="col mx-1" v-if="bucket.points > 0 || buckets.length === 1" :style="'font-size: ' + bucketSize * 10 + 'px'" :max-level="maxPoints" :current-level="bucket.points" :index="index" :blocks="bucket" :show-indicator="showIndicator" :overflow="index > 0"></mental-bucket>
             </template>
           </div>
         </div>
@@ -157,6 +206,7 @@
  import Storage from './storage';
  import Locale from './locale.js';
  import MentalBucket from "@/MentalBucket.vue";
+ import { Modal, Collapse } from 'bootstrap';
 
  const DEFAULT_MAX_POINTS = 28;
 
@@ -166,14 +216,26 @@
      return {
        locale: Locale.defaultLocale(),
        newBlock: { name: '', points: 1 },
-       blocks: [],
+       blocks: Storage.get('blocks', []),
        maxPoints: Storage.get('maxPoints', DEFAULT_MAX_POINTS),
        bucketSize: Storage.get('bucketSize', 1.1),
        showIndicator: Storage.get('showIndicator', 1) === 1,
        storedBuckets: Storage.get('buckets', []),
+       confirmMessage: '',
+       confirmResolve: null,
+       configModalMode: null,
+       configText: '',
+       configCopied: false,
      };
    },
    watch: {
+     blocks: {
+       handler(newValue) {
+         Storage.set('blocks', newValue);
+       },
+       deep: true,
+     },
+
      maxPoints(newValue) {
        Storage.set('maxPoints', newValue);
      },
@@ -266,10 +328,27 @@
        return {'points': 0, '1': 0, '2': 0, '3': 0, '4': 0};
      },
 
-     startOver() {
-       if (confirm(Locale.get('StartOverConfirm'))) {
+     async startOver() {
+       if (await this.confirm(Locale.get('StartOverConfirm'))) {
          // Clear current blocks but keep the saved history
          this.blocks = [];
+          this.closeMobileMenu();
+       }
+     },
+
+     confirm(message) {
+       this.confirmMessage = message;
+       Modal.getOrCreateInstance(this.$refs.confirmModal).show();
+       return new Promise(resolve => {
+         this.confirmResolve = resolve;
+       });
+     },
+
+     resolveConfirm(result) {
+       Modal.getOrCreateInstance(this.$refs.confirmModal).hide();
+       if (this.confirmResolve) {
+         this.confirmResolve(result);
+         this.confirmResolve = null;
        }
      },
 
@@ -296,15 +375,11 @@
        block.points = newScore;
      },
 
-     deleteBlock(block) {
-       if (confirm(Locale.get('DeleteBlockConfirm'))) {
+     async deleteBlock(block) {
+       if (await this.confirm(Locale.get('DeleteBlockConfirm'))) {
          const index = this.blocks.indexOf(block);
          this.blocks.splice(index, 1);
        }
-     },
-
-     printBucket() {
-       window.print();
      },
 
      saveBucket() {
@@ -315,10 +390,22 @@
 
      loadBucket(bucket) {
        this.blocks = JSON.parse(JSON.stringify(bucket.blocks));
+       this.closeMobileMenu();
      },
 
-     clearHistory() {
-       if (confirm(Locale.get('ClearHistoryConfirm'))) {
+     closeMobileMenu() {
+       const navbarCollapse = document.getElementById('navbarSupportedContent');
+       if (navbarCollapse) {
+         Collapse.getOrCreateInstance(navbarCollapse).hide();
+       }
+     },
+
+     openBucketSizeModal() {
+       Modal.getOrCreateInstance(this.$refs.bucketSizeModal).show();
+     },
+
+     async clearHistory() {
+       if (await this.confirm(Locale.get('ClearHistoryConfirm'))) {
          this.storedBuckets = [];
          Storage.remove('buckets');
          Storage.remove('maxPoints');
@@ -327,16 +414,37 @@
      },
 
      exportConfig() {
-       navigator.clipboard.writeText(Storage.export());
-       alert(Locale.get('ConfigCopied'));
+       this.configModalMode = 'export';
+       this.configText = Storage.export();
+       this.configCopied = false;
+       Modal.getOrCreateInstance(this.$refs.configModal).show();
+     },
+
+     copyConfigText() {
+       navigator.clipboard.writeText(this.configText);
+       this.configCopied = true;
      },
 
      importConfig() {
-       if (confirm(Locale.get('ImportConfigConfirm'))) {
-         Storage.import(prompt(Locale.get('ImportConfigPrompt')));
-         window.location.reload();
-       }
+       this.configModalMode = 'import';
+       this.configText = '';
+       this.configCopied = false;
+       Modal.getOrCreateInstance(this.$refs.configModal).show();
+     },
+
+     applyImportConfig() {
+       Storage.import(this.configText);
+       window.location.reload();
      },
    },
  };
  </script>
+
+ <style>
+ .bucket-size-preview {
+   max-height: 60vh;
+   overflow: auto;
+   display: flex;
+   justify-content: center;
+ }
+ </style>

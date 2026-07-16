@@ -34,11 +34,20 @@ export default {
       type: Boolean,
       default: true
     },
+    overflow: {
+      type: Boolean,
+      default: false
+    },
   },
 
   computed: {
-    isOverflow() {
-      return this.index > 0;
+    indicatorSegments() {
+      const totalPoints = this.blocks.points;
+      return [1, 2, 3, 4].map(i => ({
+        key: i,
+        color: COLOURS[i - 1],
+        height: totalPoints > 0 ? (this.blocks[i] / totalPoints) * 100 : 0
+      }));
     }
   },
 
@@ -50,48 +59,12 @@ export default {
     maxLevel () {
       this.changeLevel(this.currentLevel);
     },
-
-    blocks (data) {
-      this.updateIndicator(data);
-    },
-
-    showIndicator () {
-      this.updateIndicator(this.blocks);
-    }
   },
   mounted() {
     this.changeLevel(this.currentLevel);
-    this.updateIndicator(this.blocks);
   },
 
   methods: {
-    updateIndicator(data) {
-      const indicator = document.querySelector('.bucket-' + this.index +' .indicator');
-
-      if (!this.showIndicator) {
-        indicator.style.width = 0;
-        return;
-      }
-
-      const totalPoints = data.points;
-      let gradientParts = [];
-      let accumulatedPercentage = 0;
-
-      // Iterate over keys 1 to 4 to generate gradient segments
-      for (let i = 1; i <= 4; i++) {
-        const value = data[i];
-        if (value > 0) {
-          const percentage = (value / totalPoints) * 100;
-          gradientParts.push(`${COLOURS[i - 1]} ${accumulatedPercentage}% ${accumulatedPercentage + percentage}%`);
-          accumulatedPercentage += percentage;
-        }
-      }
-      indicator.style.width = 0;
-      // Apply the CSS background
-      setTimeout(() => indicator.style.background = `linear-gradient(to bottom, ${gradientParts.join(", ")})`, 1000);
-      setTimeout(() => indicator.style.width = '', 1000);
-    },
-
     changeLevel(newLevel) {
       if (newLevel === this.level) {
         return;
@@ -106,9 +79,10 @@ export default {
       const water = document.querySelector('.bucket-' + this.index +' .water');
       const tapWaterFlow = document.querySelector('.bucket-' + this.index +' .tap-water-flow');
       const valveWaterFlow = document.querySelector('.bucket-' + this.index +' .valve-water-flow');
-      const isStacked = window.matchMedia('(max-width: 767px)').matches;
 
       this.clearAllTimeouts();
+
+      const isStacked = window.matchMedia('(max-width: 767px)').matches;
 
       // Handle water animations
       tapWaterFlow.removeAttribute('style');
@@ -204,12 +178,19 @@ export default {
     <div class="bucket">
       <div class="bucket-handle"></div>
       <div :class="currentLevel > 0 ? '' : 'empty'" class="water">
-        <div class="indicator"></div>
+        <div class="indicator" :class="{ 'indicator-hidden': !showIndicator }">
+          <div
+              v-for="segment in indicatorSegments"
+              :key="segment.key"
+              class="indicator-segment"
+              :style="{ height: segment.height + '%', background: segment.color }"
+          ></div>
+        </div>
       </div>
       <div class="bucket-valve">
         <div class="valve-water-flow"></div>
       </div>
-      <div class="overflow-label" v-if="isOverflow">{{ $t('Overflow') }}</div>
+      <div class="overflow-label" v-if="overflow">{{ $t('Overflow') }}</div>
     </div>
   </div>
 </template>
@@ -234,7 +215,10 @@ export default {
 .tap {
   position: absolute;
   top: 4em;
-  left: 33%;
+  /* Anchored to .bucket with a fixed em offset (33% of the original 16em
+     canvas) rather than a container-relative percentage, so it stays
+     correctly aligned above the bucket regardless of container width. */
+  left: calc((100% - 15em) / 2 + 5.28em);
   width: 2em;
   height: 4em;
   background: linear-gradient(#333 0%, #d3d3d3 50%, #999 80%);
@@ -246,6 +230,7 @@ export default {
 .tap::before {
   content: "";
   position: absolute;
+  left: 0;
   width: 100%;
   height: 1em;
   background: #999;
@@ -258,6 +243,9 @@ export default {
 .bucket {
   position: absolute;
   bottom: 0;
+  /* Centered rather than left (its static-position default) so the
+     assembly isn't lopsided against the right-hand slack in the container. */
+  left: calc((100% - 15em) / 2);
   width: 15em;
   height: 20em;
   background: #d3d3d3;
@@ -268,6 +256,7 @@ export default {
 .bucket::before {
   content: "";
   position: absolute;
+  left: 0;
   width: 100%;
   height: 2em;
   background: #999;
@@ -278,6 +267,7 @@ export default {
 .bucket::after {
   content: "";
   position: absolute;
+  left: 0;
   width: 100%;
   height: 2em;
   background: transparent;
@@ -314,6 +304,7 @@ export default {
 .bucket-valve::before {
   content: "";
   position: absolute;
+  left: 0;
   width: 100%;
   height: 1em;
   background: #999;
@@ -338,6 +329,7 @@ export default {
 .water::before {
   content: "";
   position: absolute;
+  left: 0;
   width: 100%;
   height: 1em;
   background: linear-gradient(to top, #c0d4e7 0%, #73b1e7 100%);
@@ -371,8 +363,19 @@ export default {
 .indicator {
   width: 10%;
   height: 100%;
-  display: block;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   transition: width 1s ease;
+}
+
+.indicator.indicator-hidden {
+  width: 0;
+}
+
+.indicator-segment {
+  width: 100%;
+  transition: height 1s ease;
 }
 
 /* Marks a bucket as an overflow bucket, most important when it's the one
@@ -410,22 +413,6 @@ export default {
 
   .animation-container.fullscreen-active.fullscreen-visible {
     opacity: 1;
-  }
-
-  /* .bucket normally sits flush against the left edge (its static position),
-     leaving all the slack on the right. Center the bucket+tap assembly as a
-     unit. .tap's own left:33% is a percentage of the *container* width, so it
-     can't just be shifted by the same amount as .bucket: removing the
-     max-width clamp here widens the container from 16em to 20em, which alone
-     drags .tap rightward relative to .bucket. Anchor .tap to .bucket instead,
-     using a fixed em offset (33% of the original 16em canvas) so their
-     relative alignment stays exactly as designed. */
-  .animation-container.fullscreen-active .bucket {
-    left: calc((100% - 15em) / 2);
-  }
-
-  .animation-container.fullscreen-active .tap {
-    left: calc((100% - 15em) / 2 + 5.28em);
   }
 
   .animation-container.fullscreen-active::before {
