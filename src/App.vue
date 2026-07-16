@@ -265,6 +265,7 @@
      if (!Storage.get('onboarded', false)) {
        Modal.getOrCreateInstance(this.$refs.onboardingModal).show();
      }
+     this.updateManifestLink(this.locale);
    },
    watch: {
      blocks: {
@@ -293,6 +294,7 @@
      locale(newValue) {
        Locale.changeLocale(newValue);
        document.title = Locale.get('MentalBucketSystem');
+       this.updateManifestLink(newValue);
      },
    },
    computed: {
@@ -364,6 +366,13 @@
    methods: {
      getBucketObject() {
        return {'points': 0, '1': 0, '2': 0, '3': 0, '4': 0};
+     },
+
+     updateManifestLink(locale) {
+       const link = document.querySelector('link[rel="manifest"]');
+       if (link) {
+         link.setAttribute('href', locale === 'nl' ? '/manifest.nl.json' : '/manifest.en.json');
+       }
      },
 
      completeOnboarding() {
