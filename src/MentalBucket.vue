@@ -389,14 +389,18 @@ export default {
 
   /* .bucket normally sits flush against the left edge (its static position),
      leaving all the slack on the right. Center the bucket+tap assembly as a
-     unit by shifting both by the same amount, preserving their relative
-     alignment to each other. */
+     unit. .tap's own left:33% is a percentage of the *container* width, so it
+     can't just be shifted by the same amount as .bucket: removing the
+     max-width clamp here widens the container from 16em to 20em, which alone
+     drags .tap rightward relative to .bucket. Anchor .tap to .bucket instead,
+     using a fixed em offset (33% of the original 16em canvas) so their
+     relative alignment stays exactly as designed. */
   .animation-container.fullscreen-active .bucket {
     left: calc((100% - 15em) / 2);
   }
 
   .animation-container.fullscreen-active .tap {
-    left: calc(33% + (100% - 15em) / 2);
+    left: calc((100% - 15em) / 2 + 5.28em);
   }
 
   .animation-container.fullscreen-active::before {
