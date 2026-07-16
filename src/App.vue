@@ -96,14 +96,14 @@
 
     <div class="container-fluid">
       <div class="row flex-md-row">
-        <div class="col-12 col-md-6 col-xxl-5">
-          <div class="row">
+        <div class="col-12 col-md-6 col-xxl-5 order-2 order-md-1">
+          <div class="row justify-content-center">
             <template v-for="(bucket, index) in buckets" :key="'bucket-' + index">
               <mental-bucket class="col mx-1" v-if="bucket.points > 0 || buckets.length === 1" :style="'font-size: ' + bucketSize * 10 + 'px'" :max-level="maxPoints" :current-level="bucket.points" :index="index" :blocks="bucket" :show-indicator="showIndicator"></mental-bucket>
             </template>
           </div>
         </div>
-        <div class="col-12 col-md-6 col-xxl-7 mt-3">
+        <div class="col-12 col-md-6 col-xxl-7 mt-3 order-1 order-md-2">
           <div class="card">
             <div class="card-header">
               <div v-if="remainingPoints > 0"><strong>{{ $t('Buffer') }}:</strong> <span class="badge" :class="bufferBackgroundColor">{{ remainingPoints }}</span> {{ $t('points') }}</div>
@@ -111,17 +111,16 @@
             </div>
             <div class="card-body">
               <form class="row" @submit.prevent="addBlock">
-                <div class="my-1 col-9 col-xl-10 col-xxl-7">
+                <div class="my-1 col-12 col-sm-7">
                   <input class="form-control  col-12" v-model="newBlock.name" :placeholder="$t('BlockName')" required />
                 </div>
-                <div class="my-1 col-2 col-xl-2 col-xxl-2">
-                  <input class="form-control  col-12" style="width: initial" size="1" v-model.number="newBlock.points" type="number" min="1" max="4" placeholder="Points (1-4)" required />
-                </div>
-                <div class="my-1 col-12 col-xxl-3">
-                  <button class="btn btn-dark col-12" type="submit" :title="$t('AddBlock')"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-square" viewBox="0 0 16 16">
-                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z"/>
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
-                  </svg>&nbsp;{{ $t('Add') }}</button>
+                <div class="my-1 col-12 col-sm-5">
+                  <div class="btn-group w-100" role="group" :aria-label="$t('AddBlock')">
+                    <button class="btn btn-success" type="submit" @click="newBlock.points = 1" :title="$t('AddBlock')">1</button>
+                    <button class="btn btn-info" type="submit" @click="newBlock.points = 2" :title="$t('AddBlock')">2</button>
+                    <button class="btn btn-warning" type="submit" @click="newBlock.points = 3" :title="$t('AddBlock')">3</button>
+                    <button class="btn btn-danger" type="submit" @click="newBlock.points = 4" :title="$t('AddBlock')">4</button>
+                  </div>
                 </div>
               </form>
             </div>

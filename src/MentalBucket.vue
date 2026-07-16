@@ -11,7 +11,9 @@ export default {
   data() {
     return {
       level: 0,
-      timeouts: []
+      timeouts: [],
+      scrollLocked: false,
+      lockScrollY: 0
     }
   },
   props: {
@@ -94,9 +96,11 @@ export default {
       } else if (newLevel < 0) {
         newLevel = 0;
       }
+      const container = document.querySelector('.bucket-' + this.index);
       const water = document.querySelector('.bucket-' + this.index +' .water');
       const tapWaterFlow = document.querySelector('.bucket-' + this.index +' .tap-water-flow');
       const valveWaterFlow = document.querySelector('.bucket-' + this.index +' .valve-water-flow');
+      const isStacked = window.matchMedia('(max-width: 767px)').matches;
 
       this.clearAllTimeouts();
 
@@ -104,6 +108,12 @@ export default {
       tapWaterFlow.removeAttribute('style');
       valveWaterFlow.removeAttribute('style');
       let originalLevel = this.level;
+
+      if (isStacked) {
+        this.lockScroll();
+        container.classList.add('fullscreen-active');
+        requestAnimationFrame(() => container.classList.add('fullscreen-visible'));
+      }
 
       if (newLevel > this.level) {
         valveWaterFlow.style.height = 0;
@@ -115,6 +125,13 @@ export default {
         this.addTimeout(setTimeout(() => tapWaterFlow.style.top = `${745 - (100 / this.maxLevel * newLevel * 4.5)}%`, 1800));
         this.addTimeout(setTimeout(() => tapWaterFlow.style.height = '0', 1800));
         this.addTimeout(setTimeout(() => water.style.height = `${95 / this.maxLevel * newLevel}%`, 1000));
+        if (isStacked) {
+          this.addTimeout(setTimeout(() => container.classList.remove('fullscreen-visible'), 1800));
+          this.addTimeout(setTimeout(() => {
+            container.classList.remove('fullscreen-active');
+            this.unlockScroll();
+          }, 2200));
+        }
       } else {
         tapWaterFlow.style.height = '0';
         this.addTimeout(setTimeout(() => valveWaterFlow.style.transition = 'height 1s ease, top 1s ease', 100));
@@ -125,9 +142,40 @@ export default {
         if (newLevel === 0) {
           this.addTimeout(setTimeout(() => water.style.opacity = 0, 1100));
         }
+        if (isStacked) {
+          this.addTimeout(setTimeout(() => container.classList.remove('fullscreen-visible'), 1100));
+          this.addTimeout(setTimeout(() => {
+            container.classList.remove('fullscreen-active');
+            this.unlockScroll();
+          }, 1500));
+        }
       }
 
       this.level = newLevel;
+    },
+
+    lockScroll() {
+      if (this.scrollLocked) {
+        return;
+      }
+      this.scrollLocked = true;
+      this.lockScrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${this.lockScrollY}px`;
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+    },
+
+    unlockScroll() {
+      if (!this.scrollLocked) {
+        return;
+      }
+      this.scrollLocked = false;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      window.scrollTo(0, this.lockScrollY);
     },
 
     clearAllTimeouts() {
@@ -318,5 +366,45 @@ export default {
   height: 100%;
   display: block;
   transition: width 1s ease;
+}
+
+/* Fullscreen visualisation while water is flowing, mobile only (stacked layout, <= 767px) */
+@media (max-width: 767px) {
+  .animation-container.fullscreen-active {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    max-width: none !important;
+    max-height: 80vh;
+    font-size: min(6vw, calc(80vh / 35)) !important;
+    padding: 3em 2em 1em;
+    opacity: 0;
+    z-index: 1050;
+    transition: opacity 0.4s ease;
+  }
+
+  .animation-container.fullscreen-active.fullscreen-visible {
+    opacity: 1;
+  }
+
+  /* .bucket normally sits flush against the left edge (its static position),
+     leaving all the slack on the right. Center the bucket+tap assembly as a
+     unit by shifting both by the same amount, preserving their relative
+     alignment to each other. */
+  .animation-container.fullscreen-active .bucket {
+    left: calc((100% - 15em) / 2);
+  }
+
+  .animation-container.fullscreen-active .tap {
+    left: calc(33% + (100% - 15em) / 2);
+  }
+
+  .animation-container.fullscreen-active::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: -1;
+  }
 }
 </style>
