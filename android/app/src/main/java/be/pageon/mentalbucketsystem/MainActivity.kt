@@ -12,6 +12,7 @@ import android.webkit.WebView
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.WindowCompat
 import androidx.webkit.WebViewAssetLoader
 import androidx.webkit.WebViewClientCompat
 
@@ -23,6 +24,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        // Android 15+ (API 35) defaults to edge-to-edge for apps targeting it, which would let
+        // the status bar overlap the web app's own navbar. Opt back into the legacy inset
+        // behavior since the WebView content already draws its own app-bar-like navbar.
+        WindowCompat.setDecorFitsSystemWindows(window, true)
         setContentView(R.layout.activity_main)
 
         webView = findViewById(R.id.webview)
