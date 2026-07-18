@@ -13,14 +13,14 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "be.pageon.mentalbucketsystem"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "be.pageon.mentalbucketsystem"
         minSdk = 21
-        targetSdk = 34
-        versionCode = 2
-        versionName = "1.1"
+        targetSdk = 35
+        versionCode = 10001
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
