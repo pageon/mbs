@@ -8,4 +8,5 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="ic_launcher_background">#FC9B00</color>
+    <color name="web_navbar">#0D6EFD</color>
 </resources>
