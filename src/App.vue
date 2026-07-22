@@ -388,6 +388,14 @@ export default {
     }
     this.updateManifestLink(this.locale);
     this.checkAutoSaveOnNewDay();
+    // Android's WebView commonly resumes the same page instance instead of
+    // reloading it when the app is reopened, so mounted() alone would only
+    // ever check once per cold start - recheck whenever the app regains
+    // the foreground too.
+    document.addEventListener('visibilitychange', this.handleVisibilityChange);
+  },
+  beforeUnmount() {
+    document.removeEventListener('visibilitychange', this.handleVisibilityChange);
   },
   watch: {
     blocks: {
@@ -676,8 +684,22 @@ export default {
           || dateA.getDate() !== dateB.getDate();
     },
 
+    handleVisibilityChange() {
+      if (document.visibilityState === 'visible') {
+        this.checkAutoSaveOnNewDay();
+      }
+    },
+
     checkAutoSaveOnNewDay() {
-      if (!this.autoSaveOnNewDay || !this.blocks.length || !this.lastModifiedAt) {
+      if (!this.autoSaveOnNewDay || !this.blocks.length) {
+        return;
+      }
+      if (!this.lastModifiedAt) {
+        // Blocks from before this feature existed have no recorded
+        // modification time; there's no "old day" to compare against, so
+        // start tracking from now instead of silently never triggering.
+        this.lastModifiedAt = Date.now();
+        Storage.set('blocksLastModifiedAt', this.lastModifiedAt);
         return;
       }
       if (this.isDifferentDay(this.lastModifiedAt, Date.now())) {
