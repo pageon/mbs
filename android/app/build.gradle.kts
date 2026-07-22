@@ -84,6 +84,13 @@ dependencies {
 // Bundles the Vue app's production build (../../dist, run `npm run build` first)
 // into the app's assets so the WebView can load it fully offline.
 tasks.register<Copy>("copyWebDist") {
+    // Webpack's content-hashed filenames (app.<hash>.js) mean a stale build's
+    // files are never overwritten by a newer one, only added alongside it -
+    // clear them out first so only the current build's files remain.
+    doFirst {
+        delete(layout.projectDirectory.dir("src/main/assets/css"))
+        delete(layout.projectDirectory.dir("src/main/assets/js"))
+    }
     from(rootProject.rootDir.resolve("../dist"))
     into(layout.projectDirectory.dir("src/main/assets"))
 }
