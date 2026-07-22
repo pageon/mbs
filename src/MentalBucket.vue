@@ -55,18 +55,28 @@ export default {
     },
 
     itemSegments() {
-      const totalPoints = this.blocks.points;
-      if (!this.blocks.items || !totalPoints) {
+      const maxLevel = this.maxLevel;
+      if (!this.blocks.items || !maxLevel) {
         return [];
       }
-      return [...this.blocks.items]
+      const segments = [...this.blocks.items]
           .sort((a, b) => a.score - b.score)
           .map((item, index) => ({
             key: index,
             name: item.name,
             color: COLOURS[item.score - 1],
-            height: (item.points / totalPoints) * 100
+            height: (item.points / maxLevel) * 100
           }));
+      const remaining = maxLevel - (this.blocks.points || 0);
+      if (remaining > 0) {
+        segments.unshift({
+          key: 'buffer',
+          name: this.$t('Buffer'),
+          buffer: true,
+          height: (remaining / maxLevel) * 100
+        });
+      }
+      return segments;
     },
   },
 
@@ -196,14 +206,14 @@ export default {
     </div>
     <div class="bucket">
       <div class="bucket-handle"></div>
-      <div :class="currentLevel > 0 ? '' : 'empty'" class="water">
+      <div :class="{ empty: currentLevel <= 0, 'water-labeled': showBlockLabels }" class="water">
         <div class="indicator" :class="{ 'indicator-hidden': !showIndicator, 'indicator-labeled': showBlockLabels }">
           <div
               v-for="segment in (showBlockLabels ? itemSegments : indicatorSegments)"
               :key="segment.key"
               class="indicator-segment"
-              :class="{ 'indicator-segment-labeled': showBlockLabels }"
-              :style="{ height: segment.height + '%', background: segment.color }"
+              :class="{ 'indicator-segment-labeled': showBlockLabels, 'indicator-segment-buffer': segment.buffer }"
+              :style="{ height: segment.height + '%', background: segment.buffer ? null : segment.color }"
           ><span v-if="showBlockLabels && segment.name" class="indicator-segment-label">{{ segment.name }}</span></div>
         </div>
       </div>
@@ -360,6 +370,12 @@ export default {
   transition: height 1s ease, opacity 0.5s ease;
 }
 
+.water.water-labeled::before {
+  /* The wave-surface highlight doesn't make sense once the full-width
+     indicator takes over as the bucket's entire visual. */
+  display: none;
+}
+
 /* Water Flow Effects */
 .tap-water-flow, .valve-water-flow {
   position: absolute;
@@ -393,9 +409,19 @@ export default {
 }
 
 .indicator.indicator-labeled {
-  /* Half the width of .bucket (15em), expressed as an absolute em value since
-     .indicator's own parent (.water) is only 90% of the bucket's width. */
-  width: 7.5em;
+  /* Take over the water's entire footprint instead of a narrow strip. */
+  top: auto;
+  bottom: 0;
+  left: 0;
+  right: auto;
+  width: 100%;
+  /* .water's own height is animated (see changeLevel) up to a maximum of
+     95% of the bucket's fixed 20em height, i.e. 19em. Using that fixed
+     value here — anchored via bottom, which stays put since only
+     .water's height (not its 4% bottom offset) ever changes — keeps the
+     indicator showing the bucket's full capacity regardless of the
+     current fill level. */
+  height: 19em;
 }
 
 .indicator.indicator-hidden {
@@ -407,16 +433,21 @@ export default {
   transition: height 1s ease;
 }
 
+.indicator-segment:not(:first-child) {
+  border-top: 0.1em solid rgba(255, 255, 255, 0.4);
+}
+
 .indicator-segment-labeled {
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  border-top: 0.1em solid rgba(255, 255, 255, 0.4);
 }
 
-.indicator-segment-labeled:first-child {
-  border-top: none;
+.indicator-segment-buffer .indicator-segment-label {
+  text-shadow: none;
+  color: black;
+  font-size: 1em;
 }
 
 .indicator-segment-label {
