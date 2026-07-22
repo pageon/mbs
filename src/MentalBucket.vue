@@ -215,7 +215,7 @@ export default {
               v-for="segment in (showBlockLabels ? itemSegments : indicatorSegments)"
               :key="segment.key"
               class="indicator-segment"
-              :class="{ 'indicator-segment-labeled': showBlockLabels, 'indicator-segment-buffer': segment.buffer }"
+              :class="{ 'indicator-segment-labeled': showBlockLabels, 'indicator-segment-buffer': segment.buffer, 'indicator-segment-empty': !segment.height }"
               :style="{ height: segment.height + '%', background: segment.buffer ? null : segment.color }"
           ><span v-if="showBlockLabels && segment.name" class="indicator-segment-label" :class="{ 'indicator-segment-label-dark': segment.darkText }">{{ segment.name }}</span></div>
         </div>
@@ -436,7 +436,7 @@ export default {
   transition: height 1s ease;
 }
 
-.indicator-segment:not(:first-child) {
+.indicator-segment:not(:first-child):not(.indicator-segment-empty) {
   border-top: 0.1em solid rgba(255, 255, 255, 0.4);
 }
 
