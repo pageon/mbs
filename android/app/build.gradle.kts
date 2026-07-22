@@ -19,8 +19,8 @@ android {
         applicationId = "be.pageon.mentalbucketsystem"
         minSdk = 21
         targetSdk = 35
-        versionCode = 10104
-        versionName = "1.1.4"
+        versionCode = 10105
+        versionName = "1.1.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
