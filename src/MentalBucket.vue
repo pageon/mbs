@@ -65,6 +65,9 @@ export default {
             key: index,
             name: item.name,
             color: COLOURS[item.score - 1],
+            // Info (2) and warning (3) backgrounds are too light for white
+            // text, matching the same rule App.vue's getBlockClass uses.
+            darkText: item.score === 2 || item.score === 3,
             height: (item.points / maxLevel) * 100
           }));
       const remaining = maxLevel - (this.blocks.points || 0);
@@ -214,7 +217,7 @@ export default {
               class="indicator-segment"
               :class="{ 'indicator-segment-labeled': showBlockLabels, 'indicator-segment-buffer': segment.buffer }"
               :style="{ height: segment.height + '%', background: segment.buffer ? null : segment.color }"
-          ><span v-if="showBlockLabels && segment.name" class="indicator-segment-label">{{ segment.name }}</span></div>
+          ><span v-if="showBlockLabels && segment.name" class="indicator-segment-label" :class="{ 'indicator-segment-label-dark': segment.darkText }">{{ segment.name }}</span></div>
         </div>
       </div>
       <div class="bucket-valve">
@@ -462,6 +465,11 @@ export default {
   color: #fff;
   text-shadow: 0 0 0.2em rgba(0, 0, 0, 0.6);
   text-align: center;
+}
+
+.indicator-segment-label-dark {
+  color: #000;
+  text-shadow: 0 0 0.2em rgba(255, 255, 255, 0.6);
 }
 
 /* Marks a bucket as an overflow bucket, most important when it's the one
