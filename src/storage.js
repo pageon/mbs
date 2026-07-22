@@ -1,6 +1,11 @@
 export default class Storage {
   static get(key, defaultValue = null) {
-    return JSON.parse(localStorage.getItem(key)) || defaultValue
+    const raw = localStorage.getItem(key)
+    return raw === null ? defaultValue : JSON.parse(raw)
+  }
+
+  static has(key) {
+    return localStorage.getItem(key) !== null
   }
 
   static set(key, value) {
