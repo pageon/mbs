@@ -41,6 +41,15 @@ const I18N = createI18n({
       WelcomeTitle: 'Welcome',
       OnboardingExplanation: 'Add anything that\'s on your mind as a block worth between 1 and 4 points - 1 for something small, 4 for something that weighs heavily. Choose how many points your bucket can hold before it\'s full, then start adding what\'s on your mind.',
       GetStarted: 'Get started',
+      UnnamedBlock: '(unnamed)',
+      AutoSaveOnNewDay: 'Start every new day with a new bucket after saving the old one',
+      Delete: 'Delete',
+      DeleteBucketConfirm: 'Are you sure you want to delete this saved bucket?',
+      LimitHistoryItems: 'Limit the number of saved buckets',
+      MaxHistoryItems: 'Maximum number of saved buckets',
+      ShowBlockLabels: 'Show block names inside the bucket',
+      ShowPreviousBucketSuggestions: 'Show suggestions and the previous bucket',
+      PreviousBucket: 'Previous bucket',
     },
     nl: {
       Settings: 'Instellingen',
@@ -77,6 +86,16 @@ const I18N = createI18n({
       WelcomeTitle: 'Welkom',
       OnboardingExplanation: 'Voeg alles toe wat je bezighoudt als een blok van 1 tot 4 punten - 1 voor iets kleins, 4 voor iets dat zwaar weegt. Kies hoeveel punten je emmer kan bevatten voordat hij vol is, en begin dan met toevoegen wat je bezighoudt.',
       GetStarted: 'Aan de slag',
+      UnnamedBlock: '(naamloos)',
+      AutoSaveOnNewDay: 'Elke nieuwe dag de oude emmer opslaan en met een nieuwe emmer starten',
+      Delete: 'Verwijderen',
+      DeleteBucketConfirm: 'Ben je zeker dat je deze opgeslagen emmer wilt verwijderen?',
+      LimitHistoryItems: 'Beperk het aantal opgeslagen emmers',
+      MaxHistoryItems: 'Maximum aantal opgeslagen emmers',
+      ShowBlockDividers: 'Toon dunne lijnen tussen blokken',
+      ShowBlockLabels: 'Toon bloknamen in de emmer',
+      ShowPreviousBucketSuggestions: 'Toon suggesties en de vorige emmer',
+      PreviousBucket: 'Vorige emmer',
     }
   }
 })

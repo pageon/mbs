@@ -38,6 +38,10 @@ export default {
       type: Boolean,
       default: false
     },
+    showBlockLabels: {
+      type: Boolean,
+      default: false
+    },
   },
 
   computed: {
@@ -48,7 +52,22 @@ export default {
         color: COLOURS[i - 1],
         height: totalPoints > 0 ? (this.blocks[i] / totalPoints) * 100 : 0
       }));
-    }
+    },
+
+    itemSegments() {
+      const totalPoints = this.blocks.points;
+      if (!this.blocks.items || !totalPoints) {
+        return [];
+      }
+      return [...this.blocks.items]
+          .sort((a, b) => a.score - b.score)
+          .map((item, index) => ({
+            key: index,
+            name: item.name,
+            color: COLOURS[item.score - 1],
+            height: (item.points / totalPoints) * 100
+          }));
+    },
   },
 
   watch: {
@@ -178,13 +197,14 @@ export default {
     <div class="bucket">
       <div class="bucket-handle"></div>
       <div :class="currentLevel > 0 ? '' : 'empty'" class="water">
-        <div class="indicator" :class="{ 'indicator-hidden': !showIndicator }">
+        <div class="indicator" :class="{ 'indicator-hidden': !showIndicator, 'indicator-labeled': showBlockLabels }">
           <div
-              v-for="segment in indicatorSegments"
+              v-for="segment in (showBlockLabels ? itemSegments : indicatorSegments)"
               :key="segment.key"
               class="indicator-segment"
+              :class="{ 'indicator-segment-labeled': showBlockLabels }"
               :style="{ height: segment.height + '%', background: segment.color }"
-          ></div>
+          ><span v-if="showBlockLabels && segment.name" class="indicator-segment-label">{{ segment.name }}</span></div>
         </div>
       </div>
       <div class="bucket-valve">
@@ -361,12 +381,21 @@ export default {
 }
 
 .indicator {
+  position: absolute;
+  top: 0;
+  right: 0;
   width: 10%;
   height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   transition: width 1s ease;
+}
+
+.indicator.indicator-labeled {
+  /* Half the width of .bucket (15em), expressed as an absolute em value since
+     .indicator's own parent (.water) is only 90% of the bucket's width. */
+  width: 7.5em;
 }
 
 .indicator.indicator-hidden {
@@ -376,6 +405,32 @@ export default {
 .indicator-segment {
   width: 100%;
   transition: height 1s ease;
+}
+
+.indicator-segment-labeled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-top: 0.1em solid rgba(255, 255, 255, 0.4);
+}
+
+.indicator-segment-labeled:first-child {
+  border-top: none;
+}
+
+.indicator-segment-label {
+  display: block;
+  width: 100%;
+  padding: 0 0.3em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.7em;
+  line-height: 1;
+  color: #fff;
+  text-shadow: 0 0 0.2em rgba(0, 0, 0, 0.6);
+  text-align: center;
 }
 
 /* Marks a bucket as an overflow bucket, most important when it's the one
