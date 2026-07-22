@@ -134,10 +134,10 @@
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">{{ $t('WelcomeTitle') }}</h5>
+            <h5 class="modal-title">{{ isFullOnboarding ? $t('WelcomeTitle') : $t('NewSettingsTitle') }}</h5>
           </div>
           <div class="modal-body">
-            <div class="mb-3">
+            <div class="mb-3" v-if="isFullOnboarding">
               <label class="form-label d-block">{{ $t('Language') }}</label>
               <div class="btn-group w-100" role="group" :aria-label="$t('Language')">
                 <button
@@ -150,10 +150,40 @@
                 >{{ $t(loc) }}</button>
               </div>
             </div>
-            <p>{{ $t('OnboardingExplanation') }}</p>
-            <div class="mb-3">
+            <p v-if="isFullOnboarding">{{ $t('OnboardingExplanation') }}</p>
+            <p v-else>{{ $t('NewSettingsExplanation') }}</p>
+            <div class="mb-3" v-if="isFullOnboarding">
               <label for="onboardingMaxPoints" class="form-label">{{ $t('MaxPoints') }}</label>
               <input id="onboardingMaxPoints" v-model.number="maxPoints" type="number" class="form-control" min="1" />
+            </div>
+            <div class="mb-3" v-if="pendingOnboardingSettings.includes('showBlockLabels')">
+              <label class="form-label d-block">{{ $t('OnboardingBlockLabelsQuestion') }}</label>
+              <div class="btn-group w-100" role="group" :aria-label="$t('OnboardingBlockLabelsQuestion')">
+                <button
+                    type="button"
+                    class="btn"
+                    :class="!showBlockLabels ? 'btn-primary' : 'btn-outline-primary'"
+                    @click="showBlockLabels = false"
+                >{{ $t('OnboardingBlockLabelsWater') }}</button>
+                <button
+                    type="button"
+                    class="btn"
+                    :class="showBlockLabels ? 'btn-primary' : 'btn-outline-primary'"
+                    @click="showBlockLabels = true"
+                >{{ $t('OnboardingBlockLabelsBlocks') }}</button>
+              </div>
+            </div>
+            <div class="mb-3" v-if="pendingOnboardingSettings.includes('autoSaveOnNewDay')">
+              <div class="form-check form-switch">
+                <input type="checkbox" v-model="autoSaveOnNewDay" role="switch" class="form-check-input" id="onboardingAutoSaveOnNewDay"/>
+                <label class="form-check-label" for="onboardingAutoSaveOnNewDay">{{ $t('OnboardingAutoSaveQuestion') }}</label>
+              </div>
+            </div>
+            <div class="mb-3" v-if="pendingOnboardingSettings.includes('showPreviousBucketSuggestions')">
+              <div class="form-check form-switch">
+                <input type="checkbox" v-model="showPreviousBucketSuggestions" role="switch" class="form-check-input" id="onboardingShowPreviousBucketSuggestions"/>
+                <label class="form-check-label" for="onboardingShowPreviousBucketSuggestions">{{ $t('OnboardingSuggestionsQuestion') }}</label>
+              </div>
             </div>
           </div>
           <div class="modal-footer">
@@ -241,7 +271,7 @@
               </div>
             </div>
           </form>
-          <div class="accordion" id="accordionBucket" v-if="showPreviousBucketSuggestions && previousBucketSuggestions.length">
+          <div class="accordion" id="accordionBucket">
             <div class="accordion-item border-0">
               <h2 class="accordion-header">
                 <button class="accordion-button bg-primary-subtle rounded-0" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBucket" aria-expanded="true" aria-controls="collapseBucket">
@@ -339,6 +369,8 @@ export default {
       showBlockLabels: Storage.get('showBlockLabels', false),
       showPreviousBucketSuggestions: Storage.get('showPreviousBucketSuggestions', false),
       storedBuckets: Storage.get('buckets', []),
+      isFullOnboarding: !Storage.get('onboarded', false),
+      pendingOnboardingSettings: [],
       confirmMessage: '',
       confirmResolve: null,
       configModalMode: null,
@@ -347,7 +379,11 @@ export default {
     };
   },
   mounted() {
-    if (!Storage.get('onboarded', false)) {
+    const newSettingKeys = ['showBlockLabels', 'autoSaveOnNewDay', 'showPreviousBucketSuggestions'];
+    this.pendingOnboardingSettings = this.isFullOnboarding
+        ? newSettingKeys
+        : newSettingKeys.filter(key => !Storage.has(key));
+    if (this.isFullOnboarding || this.pendingOnboardingSettings.length) {
       Modal.getOrCreateInstance(this.$refs.onboardingModal).show();
     }
     this.updateManifestLink(this.locale);
@@ -546,6 +582,13 @@ export default {
 
     completeOnboarding() {
       Storage.set('onboarded', true);
+      // Explicitly persist the pending settings even if the user left them
+      // at their default, so this prompt doesn't reappear on next launch.
+      for (const key of this.pendingOnboardingSettings) {
+        Storage.set(key, this[key]);
+      }
+      this.isFullOnboarding = false;
+      this.pendingOnboardingSettings = [];
       Modal.getOrCreateInstance(this.$refs.onboardingModal).hide();
     },
 
