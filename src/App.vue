@@ -228,6 +228,19 @@
           </div>
         </div>
         <div class="col-12 col-md-6 col-xxl-7 mt-3 order-1 order-md-2">
+          <form class="row" @submit.prevent="addBlock">
+            <div class="my-1 col-12 col-sm-7">
+              <input class="form-control  col-12" v-model="newBlock.name" :placeholder="$t('BlockName')" required />
+            </div>
+            <div class="my-1 col-12 col-sm-5">
+              <div class="btn-group w-100" role="group" :aria-label="$t('AddBlock')">
+                <button class="btn btn-success" type="submit" @click="newBlock.points = 1" :title="$t('AddBlock')">1</button>
+                <button class="btn btn-info" type="submit" @click="newBlock.points = 2" :title="$t('AddBlock')">2</button>
+                <button class="btn btn-warning" type="submit" @click="newBlock.points = 3" :title="$t('AddBlock')">3</button>
+                <button class="btn btn-danger" type="submit" @click="newBlock.points = 4" :title="$t('AddBlock')">4</button>
+              </div>
+            </div>
+          </form>
           <div class="accordion" id="accordionBucket" v-if="showPreviousBucketSuggestions && previousBucketSuggestions.length">
             <div class="accordion-item border-0">
               <h2 class="accordion-header">
@@ -241,21 +254,6 @@
                 </button>
               </h2>
               <div id="collapseBucket" class="accordion-collapse collapse show" data-bs-parent="#accordionBucket">
-                <div class="accordion-body">
-                  <form class="row" @submit.prevent="addBlock">
-                    <div class="my-1 col-12 col-sm-7">
-                      <input class="form-control  col-12" v-model="newBlock.name" :placeholder="$t('BlockName')" required />
-                    </div>
-                    <div class="my-1 col-12 col-sm-5">
-                      <div class="btn-group w-100" role="group" :aria-label="$t('AddBlock')">
-                        <button class="btn btn-success" type="submit" @click="newBlock.points = 1" :title="$t('AddBlock')">1</button>
-                        <button class="btn btn-info" type="submit" @click="newBlock.points = 2" :title="$t('AddBlock')">2</button>
-                        <button class="btn btn-warning" type="submit" @click="newBlock.points = 3" :title="$t('AddBlock')">3</button>
-                        <button class="btn btn-danger" type="submit" @click="newBlock.points = 4" :title="$t('AddBlock')">4</button>
-                      </div>
-                    </div>
-                  </form>
-                </div>
                 <div class="list-group bg-primary-subtle">
                   <div
                       v-for="block in orderedBlocks"
@@ -606,7 +604,7 @@ export default {
     },
 
     saveBucket() {
-      const bucket = {blocks: this.blocks, date: new Date().toLocaleString()};
+      const bucket = {blocks: JSON.parse(JSON.stringify(this.blocks)), date: new Date().toLocaleString()};
       this.storedBuckets.push(bucket);
       this.enforceHistoryLimit();
     },
@@ -640,7 +638,7 @@ export default {
         return;
       }
       if (this.isDifferentDay(this.lastModifiedAt, Date.now())) {
-        const bucket = {blocks: this.blocks, date: new Date(this.lastModifiedAt).toLocaleString()};
+        const bucket = {blocks: JSON.parse(JSON.stringify(this.blocks)), date: new Date(this.lastModifiedAt).toLocaleString()};
         this.storedBuckets.push(bucket);
         this.enforceHistoryLimit();
         this.blocks = [];
